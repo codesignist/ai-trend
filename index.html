@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="ARC-AGI-1/2/3 leaderboard sonuçlarından model ailelerinin efor ortalamasıyla çizilmiş sürüm eğrileri.">
+<title>ARC-AGI Sürüm Eğrileri</title>
+<style>
+:root {
+	--page: #f7f7f4;
+	--surface: #fdfdfb;
+	--ink: #111110;
+	--ink-2: #52514e;
+	--muted: #86857f;
+	--grid: #e4e3dc;
+	--axis: #c3c2b7;
+	--ring: rgba(17,17,16,0.10);
+	--hover: rgba(17,17,16,0.05);
+	--focus: #2a78d6;
+	--p-anthropic: #eb6834;
+	--p-openai: #2a78d6;
+	--p-google: #1baf7a;
+	--p-xai: #4a3aa7;
+	--p-deepseek: #e87ba4;
+	--p-moonshot: #eda100;
+	--p-zai: #008300;
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		color-scheme: dark;
+		--page: #111110;
+		--surface: #1a1a19;
+		--ink: #f4f3ee;
+		--ink-2: #c3c2b7;
+		--muted: #8d8c85;
+		--grid: #2c2c2a;
+		--axis: #3d3d3a;
+		--ring: rgba(255,255,255,0.10);
+		--hover: rgba(255,255,255,0.06);
+		--focus: #5598e7;
+		--p-anthropic: #d95926;
+		--p-openai: #3987e5;
+		--p-google: #199e70;
+		--p-xai: #9085e9;
+		--p-deepseek: #d55181;
+		--p-moonshot: #c98500;
+		--p-zai: #008300;
+	}
+}
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--page: #111110;
+	--surface: #1a1a19;
+	--ink: #f4f3ee;
+	--ink-2: #c3c2b7;
+	--muted: #8d8c85;
+	--grid: #2c2c2a;
+	--axis: #3d3d3a;
+	--ring: rgba(255,255,255,0.10);
+	--hover: rgba(255,255,255,0.06);
+	--focus: #5598e7;
+	--p-anthropic: #d95926;
+	--p-openai: #3987e5;
+	--p-google: #199e70;
+	--p-xai: #9085e9;
+	--p-deepseek: #d55181;
+	--p-moonshot: #c98500;
+	--p-zai: #008300;
+}
+
+body {
+	background: var(--page);
+	color: var(--ink);
+	font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+	line-height: 1.5;
+}
+.wrap {
+	max-width: 1220px;
+	margin: 0 auto;
+	padding-inline: 20px;
+	padding-block: 36px 56px;
+	display: grid;
+	gap: 24px;
+}
+header { display: grid; gap: 8px; }
+h1 { margin: 0; font-size: 26px; font-weight: 650; letter-spacing: -0.01em; text-wrap: balance; }
+.lede { margin: 0; color: var(--ink-2); max-width: 70ch; }
+.meta { margin: 0; color: var(--muted); font-size: 12.5px; }
+.meta a { color: inherit; }
+
+button { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.controls { position: relative; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.pick-btn {
+	display: inline-flex; align-items: center; gap: 10px;
+	font-size: 13.5px; font-weight: 600;
+	background: var(--surface); border: 0; border-radius: 9px;
+	box-shadow: 0 0 0 1px var(--ring);
+	padding: 8px 12px; cursor: pointer;
+}
+.pick-btn .count { font-weight: 400; color: var(--muted); }
+.pick-btn svg { transition: transform 0.15s; }
+.pick-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+.panel {
+	position: absolute; top: calc(100% + 6px); left: 0; z-index: 10;
+	width: min(340px, calc(100vw - 40px));
+	max-height: min(520px, 70vh); overflow: auto;
+	background: var(--surface); border-radius: 12px;
+	box-shadow: 0 0 0 1px var(--ring), 0 16px 40px rgba(0,0,0,0.16);
+	padding: 10px;
+}
+.presets { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 2px 10px; border-bottom: 1px solid var(--grid); }
+.presets button {
+	font-size: 12.5px; border: 0; border-radius: 999px; cursor: pointer;
+	background: var(--hover); color: var(--ink-2); padding: 4px 10px;
+}
+.presets button:hover { color: var(--ink); }
+.group { padding-top: 8px; }
+.group h3 { margin: 0; padding: 2px 6px 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.opt {
+	display: grid; grid-template-columns: 16px 26px 1fr auto; align-items: center; gap: 8px;
+	padding: 5px 6px; border-radius: 7px; cursor: pointer; font-size: 13.5px;
+}
+.opt:hover { background: var(--hover); }
+.opt input { margin: 0; }
+.opt .span { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.seg { display: inline-flex; padding: 3px; border-radius: 9px; background: var(--surface); box-shadow: 0 0 0 1px var(--ring); }
+.seg button { font-size: 13px; border: 0; background: transparent; color: var(--ink-2); padding: 5px 12px; border-radius: 6px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.toggle { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.toggle input { margin: 0; accent-color: var(--ink); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
+.chip {
+	display: inline-flex; align-items: center; gap: 6px;
+	font-size: 12.5px; color: var(--ink-2);
+	background: var(--surface); border-radius: 999px; box-shadow: 0 0 0 1px var(--ring);
+	padding: 3px 4px 3px 10px;
+}
+.chip.on { color: var(--ink); box-shadow: 0 0 0 1.5px var(--ink-2); }
+.chip button { border: 0; background: transparent; color: var(--muted); cursor: pointer; width: 20px; height: 20px; border-radius: 50%; line-height: 1; font-size: 15px; }
+.chip button:hover { background: var(--hover); color: var(--ink); }
+.legend .empty { font-size: 13px; color: var(--muted); padding: 4px 0; }
+
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 16px; }
+.card {
+	position: relative; background: var(--surface); border-radius: 12px;
+	box-shadow: 0 0 0 1px var(--ring);
+	padding: 18px 16px 10px; display: grid; gap: 4px; min-width: 0;
+}
+.card h2 { margin: 0; font-size: 15px; font-weight: 650; }
+.combo { padding: 22px 20px 12px; }
+.combo h2 { font-size: 17px; }
+.combo-hd { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 10px 16px; }
+.card .sub { margin: 0; font-size: 12.5px; color: var(--muted); min-height: 1.5em; }
+.card svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+.card svg text { font-family: inherit; font-variant-numeric: tabular-nums; }
+g.fam { transition: opacity 0.15s; }
+g.fam.dim { opacity: 0.14; }
+
+.tip {
+	position: absolute; pointer-events: none; z-index: 5;
+	min-width: 200px; max-width: 260px;
+	background: var(--surface); color: var(--ink); border-radius: 8px;
+	box-shadow: 0 0 0 1px var(--ring), 0 8px 24px rgba(0,0,0,0.14);
+	padding: 10px 12px; font-size: 12.5px; font-variant-numeric: tabular-nums;
+}
+.tip .hd { display: flex; align-items: center; gap: 6px; font-weight: 650; font-size: 13px; }
+.tip .big { font-size: 20px; font-weight: 650; line-height: 1.2; margin-top: 4px; }
+.tip .rng { color: var(--muted); }
+.tip ul { list-style: none; margin: 8px 0 0; padding: 8px 0 0; border-top: 1px solid var(--grid); display: grid; gap: 2px; }
+.tip li { display: flex; justify-content: space-between; gap: 12px; color: var(--ink-2); }
+
+.note { margin: 0; max-width: 78ch; color: var(--ink-2); font-size: 13.5px; }
+.note strong { color: var(--ink); font-weight: 600; }
+
+details { background: var(--surface); border-radius: 12px; box-shadow: 0 0 0 1px var(--ring); }
+summary { cursor: pointer; padding: 12px 16px; font-size: 13.5px; font-weight: 600; }
+summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; border-radius: 12px; }
+.tbl { overflow-x: auto; padding: 0 16px 14px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 6px 10px; border-top: 1px solid var(--grid); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { border-top: 0; color: var(--muted); font-weight: 500; font-size: 12px; }
+tr.fh td { padding-top: 14px; font-weight: 650; color: var(--ink); border-top: 0; }
+td .n { color: var(--muted); font-size: 11.5px; margin-left: 4px; }
+td.na, td.dt { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+	g.fam, .pick-btn svg { transition: none; }
+}
+[hidden] { display: none !important; }
+body { margin: 0; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+	<header>
+		<h1>Model aileleri ARC-AGI'de nereye gidiyor?</h1>
+		<p class="lede">Her sürümün leaderboard'daki tüm efor seçenekleri (low, medium, high, xhigh, max, thinking bütçeleri) tek bir noktaya indirgendi; aynı ailenin sürümleri tek çizgide. <em>Tarih</em> ekseni çıkış sırasını, <em>Maliyet</em> ekseni görev başı dolar maliyetini (log ölçek) gösterir — orada çizgi sürümden sürüme yürür: içi boş nokta ilk sürüm, büyük nokta son sürüm. Renk sağlayıcıyı, çizgi deseni aynı sağlayıcının farklı ailesini gösterir.</p>
+		<p class="meta" id="meta"></p>
+	</header>
+
+	<div class="controls">
+		<button type="button" class="pick-btn" id="pick-btn" aria-expanded="false" aria-controls="pick-panel">
+			Modeller <span class="count" id="pick-count"></span>
+			<svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+		</button>
+		<div class="panel" id="pick-panel" hidden>
+			<div class="presets">
+				<button type="button" data-preset="featured">Amiral modeller</button>
+				<button type="button" data-preset="all">Tümü</button>
+				<button type="button" data-preset="opus">Sadece Opus</button>
+				<button type="button" data-preset="none">Temizle</button>
+			</div>
+			<div id="pick-groups"></div>
+		</div>
+
+		<div class="seg" role="group" aria-label="Yatay eksen">
+			<button type="button" id="axis-time" data-axis="time" aria-pressed="true">Tarih</button>
+			<button type="button" id="axis-cost" data-axis="cost" aria-pressed="false">Maliyet</button>
+		</div>
+		<div class="seg" role="group" aria-label="Nokta değeri">
+			<button type="button" id="mode-mean" data-mode="mean" aria-pressed="true">Ortalama</button>
+			<button type="button" id="mode-max" data-mode="max" aria-pressed="false">En iyi seçenek</button>
+		</div>
+		<label class="toggle"><input type="checkbox" id="show-spread"> Efor seçeneklerini göster</label>
+	</div>
+
+	<div class="legend" id="legend" aria-label="Seçili modeller"></div>
+
+	<section class="charts" id="charts" aria-label="ARC-AGI grafikleri"></section>
+
+	<article class="card combo" id="combo">
+		<div class="combo-hd">
+			<div>
+				<h2 id="combo-title">ARC-AGI-1 + 2 + 3 ortalaması</h2>
+				<p class="sub"></p>
+			</div>
+			<div class="seg" role="group" aria-label="Ortalamaya giren testler">
+				<button type="button" id="combo-all" data-combo="all" aria-pressed="true">1 + 2 + 3</button>
+				<button type="button" id="combo-12" data-combo="12" aria-pressed="false">1 + 2</button>
+			</div>
+		</div>
+		<div class="host"></div>
+		<div class="tip" hidden></div>
+	</article>
+
+	<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3 için leaderboard maliyet yayınlamıyor. <strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar; maliyet ekseninde ARC-AGI-1 ve 2 maliyetlerinin ortalaması kullanılır. GPT hattı 5.6'dan sonra en üst kademeyle (Sol → Astra) devam ediyor; GPT-6'nın "Provider Adapter" sonuçları dahil değil.</p>
+
+	<details>
+		<summary>Tablo</summary>
+		<div class="tbl"><table id="table"></table></div>
+	</details>
+</div>
+
+<script src="data/arc_trend.js"></script>
+<script>
+(function () {
+	const DATA = window.ARC_TREND;
+	const NS = "http://www.w3.org/2000/svg";
+	const PROVIDER_VAR = { "Anthropic": "--p-anthropic", "OpenAI": "--p-openai", "Google": "--p-google", "xAI": "--p-xai", "DeepSeek": "--p-deepseek", "Moonshot AI": "--p-moonshot", "Z.ai": "--p-zai" };
+	const DASHES = ["", "7 4", "1.5 4", "10 3 2 3"];
+	const STORE_KEY = "arc-trend-selection";
+
+	// aile başına renk + desen (sağlayıcı içindeki sıra)
+	const rankInProvider = {};
+	DATA.families.forEach(f => {
+		rankInProvider[f.provider] = (rankInProvider[f.provider] ?? -1) + 1;
+		f.color = "var(" + (PROVIDER_VAR[f.provider] || "--muted") + ")";
+		f.dash = DASHES[rankInProvider[f.provider] % DASHES.length];
+		f.versions.forEach(v => v.t = Date.parse(v.released));
+	});
+	const famById = Object.fromEntries(DATA.families.map(f => [f.id, f]));
+
+	const presets = {
+		featured: () => DATA.families.filter(f => f.featured).map(f => f.id),
+		all: () => DATA.families.map(f => f.id),
+		opus: () => ["opus"],
+		none: () => [],
+	};
+
+	let saved = null;
+	try { saved = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) {}
+	const state = {
+		selected: new Set(Array.isArray(saved) ? saved.filter(id => famById[id]) : presets.featured()),
+		axis: "time",
+		combo: "all",
+		mode: "mean",
+		spread: false,
+	};
+
+	const fmt = (v, d = 1) => (v * 100).toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d }) + "%";
+	const fmtMonth = t => new Date(t).toLocaleDateString("tr-TR", { month: "short", year: "numeric" });
+	const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+	function el(tag, attrs, parent, style) {
+		const n = document.createElementNS(NS, tag);
+		for (const k in attrs) n.setAttribute(k, attrs[k]);
+		if (style) for (const k in style) n.style[k] = style[k];
+		if (parent) parent.appendChild(n);
+		return n;
+	}
+	function swatch(f) {
+		return '<svg width="26" height="10" viewBox="0 0 26 10" aria-hidden="true"><line x1="1" y1="5" x2="25" y2="5" style="stroke:' + f.color +
+			';stroke-width:2;stroke-linecap:round" stroke-dasharray="' + f.dash + '"/><circle cx="13" cy="5" r="3.2" style="fill:' + f.color + '"/></svg>';
+	}
+	const selectedFamilies = () => DATA.families.filter(f => state.selected.has(f.id));
+	const valueOf = s => state.mode === "mean" ? s.mean : s.max;
+	const costOf = s => state.mode === "mean" ? s.meanCost : s.bestCost;
+	const fmtCost = v => "$" + v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: v < 0.01 ? 3 : 2 });
+	const fmtCostTick = v => "$" + v.toLocaleString("tr-TR", { maximumFractionDigits: 3 });
+
+	// ---------- üst bilgi ----------
+	document.getElementById("meta").innerHTML = 'Kaynak: <a href="' + DATA.source + '">arcprize.org/leaderboard</a> · semi-private setler · veri ' +
+		new Date(DATA.fetched).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }) +
+		" tarihinde alındı · sitede gizlenen satırlar hariç";
+
+	// ---------- model seçici ----------
+	const pickBtn = document.getElementById("pick-btn");
+	const panel = document.getElementById("pick-panel");
+	const groupsHost = document.getElementById("pick-groups");
+	const providers = [...new Set(DATA.families.map(f => f.provider))];
+	groupsHost.innerHTML = providers.map(p =>
+		'<div class="group"><h3>' + esc(p) + '</h3>' +
+		DATA.families.filter(f => f.provider === p).map(f => {
+			const first = f.versions[0].version, last = f.versions[f.versions.length - 1].version;
+			return '<label class="opt"><input type="checkbox" id="fam-' + f.id + '" data-fam="' + f.id + '">' + swatch(f) +
+				'<span>' + esc(f.name) + '</span><span class="span">' + (f.versions.length > 1 ? esc(first) + " → " + esc(last) : esc(first)) + '</span></label>';
+		}).join("") + '</div>'
+	).join("");
+
+	function openPanel(open) {
+		panel.hidden = !open;
+		pickBtn.setAttribute("aria-expanded", String(open));
+	}
+	pickBtn.addEventListener("click", () => openPanel(panel.hidden));
+	document.addEventListener("click", e => {
+		if (!panel.hidden && !panel.contains(e.target) && !pickBtn.contains(e.target)) openPanel(false);
+	});
+	document.addEventListener("keydown", e => {
+		if (e.key === "Escape" && !panel.hidden) { openPanel(false); pickBtn.focus(); }
+	});
+	groupsHost.addEventListener("change", e => {
+		const id = e.target.dataset.fam;
+		if (!id) return;
+		e.target.checked ? state.selected.add(id) : state.selected.delete(id);
+		update();
+	});
+	panel.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => {
+		state.selected = new Set(presets[b.dataset.preset]());
+		update();
+	}));
+
+	// ---------- lejant ----------
+	const legend = document.getElementById("legend");
+	function drawLegend() {
+		const fams = selectedFamilies();
+		legend.innerHTML = fams.length
+			? fams.map(f => '<span class="chip" data-fam="' + f.id + '">' + swatch(f) + esc(f.name) +
+				'<button type="button" aria-label="' + esc(f.name) + ' kaldır" data-remove="' + f.id + '">×</button></span>').join("")
+			: '<span class="empty">Model seçilmedi — yukarıdaki listeden seç.</span>';
+	}
+	legend.addEventListener("click", e => {
+		const id = e.target.dataset && e.target.dataset.remove;
+		if (id) { state.selected.delete(id); setHover(null); update(); }
+	});
+	legend.addEventListener("mouseover", e => { const c = e.target.closest(".chip"); setHover(c ? c.dataset.fam : null); });
+	legend.addEventListener("mouseleave", () => setHover(null));
+
+	function setHover(id) {
+		document.querySelectorAll("g.fam").forEach(g => g.classList.toggle("dim", !!id && g.dataset.fam !== id));
+		legend.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c.dataset.fam === id));
+	}
+
+	// ---------- grafikler ----------
+	const cards = DATA.benchmarks.map(b => {
+		const card = document.createElement("article");
+		card.className = "card";
+		card.innerHTML = "<h2>" + esc(b.label) + '</h2><p class="sub"></p>';
+		const host = document.createElement("div");
+		card.appendChild(host);
+		const tip = document.createElement("div");
+		tip.className = "tip";
+		tip.hidden = true;
+		card.appendChild(tip);
+		document.getElementById("charts").appendChild(card);
+		return { b, card, host, tip, sub: card.querySelector(".sub") };
+	});
+
+	// büyük grafik: testlerin ortalaması — çizim draw() ile aynı, skor v.scores.combo'dan gelir
+	const comboEl = document.getElementById("combo");
+	const combo = {
+		b: { id: "combo", label: "Test ortalaması" },
+		card: comboEl, host: comboEl.querySelector(".host"), tip: comboEl.querySelector(".tip"), sub: comboEl.querySelector(".sub"),
+		H: 440, combo: true,
+	};
+	const benchLabel = Object.fromEntries(DATA.benchmarks.map(b => [b.id, b.label]));
+	const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+
+	function comboScore(v) {
+		const ids = state.combo === "all" ? DATA.benchmarks.map(b => b.id) : DATA.benchmarks.slice(0, 2).map(b => b.id);
+		const parts = ids.map(id => [id, v.scores[id]]);
+		if (parts.some(([, s]) => !s)) return null;   // eksik testle ortalama alınmaz
+		const ss = parts.map(([, s]) => s);
+		const mc = ss.map(s => s.meanCost).filter(c => c > 0), bc = ss.map(s => s.bestCost).filter(c => c > 0);
+		return {
+			combo: true,
+			n: ss.length,
+			mean: avg(ss.map(s => s.mean)),
+			max: avg(ss.map(s => s.max)),
+			min: avg(ss.map(s => s.min)),
+			meanCost: mc.length ? avg(mc) : null,
+			bestCost: bc.length ? avg(bc) : null,
+			variants: parts.map(([id, s]) => ({ name: benchLabel[id], score: valueOf(s), cost: costOf(s) })),
+		};
+	}
+	function computeCombo() {
+		DATA.families.forEach(f => f.versions.forEach(v => {
+			const cs = comboScore(v);
+			if (cs) v.scores.combo = cs; else delete v.scores.combo;
+		}));
+	}
+
+	// x değeri: tarih ekseninde çıkış tarihi, maliyet ekseninde görev başı $
+	const xValOf = (v, s) => state.axis === "time" ? v.t : costOf(s);
+
+	// only: yalnız o skoru olan sürümler (büyük grafik kendi verisine sığar)
+	function domain(fams, only) {
+		const vers = f => only ? f.versions.filter(v => v.scores[only]) : f.versions;
+		if (state.axis === "time") {
+			const ts = fams.flatMap(f => vers(f).map(v => v.t)).filter(Number.isFinite);
+			if (!ts.length) return [Date.parse("2025-01-01"), Date.parse("2026-12-31")];
+			const pad = 25 * 864e5;
+			let t0 = Math.min(...ts) - pad, t1 = Math.max(...ts) + pad;
+			if (t1 - t0 < 120 * 864e5) { t0 -= 60 * 864e5; t1 += 60 * 864e5; }
+			return [t0, t1];
+		}
+		// tüm testlerde ortak log aralığı; efor noktaları da sığsın diye seçenek maliyetleri dahil
+		const cs = fams.flatMap(f => vers(f).flatMap(v => (only ? [v.scores[only]] : Object.values(v.scores)).flatMap(s =>
+			[costOf(s), ...(state.spread ? s.variants.map(vr => vr.cost) : [])]))).filter(c => c > 0);
+		if (!cs.length) return [0.01, 10];
+		let a = Math.floor(Math.log10(Math.min(...cs))), z = Math.ceil(Math.log10(Math.max(...cs)));
+		if (z - a < 2) { a--; z++; }
+		return [10 ** a, 10 ** z];
+	}
+
+	function monthTicks(t0, t1, pw) {
+		const months = (t1 - t0) / (30.44 * 864e5);
+		const every = [1, 2, 3, 6, 12].find(k => pw / (months / k) >= 60) || 12;
+		const out = [];
+		const d = new Date(t0);
+		let y = d.getFullYear(), m = d.getMonth() + 1;
+		for (;;) {
+			if (m > 11) { y++; m -= 12; }
+			const t = new Date(y, m, 1).getTime();
+			if (t > t1) break;
+			if (m % every === 0) out.push({ t, label: every === 12 ? String(y) : new Date(t).toLocaleDateString("tr-TR", { month: "short" }) + " '" + String(y).slice(2) });
+			m++;
+		}
+		return out;
+	}
+
+	function costTicks(c0, c1) {
+		const out = [];
+		for (let k = Math.round(Math.log10(c0)); k <= Math.round(Math.log10(c1)); k++) out.push({ t: 10 ** k, label: fmtCostTick(10 ** k) });
+		return out;
+	}
+
+	function draw(c, fams, dom) {
+		const { b, host, tip, sub } = c;
+		const byCost = state.axis === "cost";
+		const W = Math.max(290, host.clientWidth || 360);
+		const H = c.H || 300;
+		const L = 40, R = 18, T = 16, B = 42;
+		const pw = W - L - R, ph = H - T - B;
+		const [d0, d1] = dom;
+		const x = byCost
+			? c => L + (Math.log10(c) - Math.log10(d0)) / (Math.log10(d1) - Math.log10(d0)) * pw
+			: t => L + (t - d0) / (d1 - d0) * pw;
+		const y = v => T + ph * (1 - v);
+
+		host.innerHTML = "";
+		tip.hidden = true;
+		const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": b.label + (byCost ? " — maliyete göre skor" : " — sürümlere göre skor") }, host);
+
+		[0, 0.25, 0.5, 0.75, 1].forEach(v => {
+			el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), "stroke-width": 1 }, svg, { stroke: v === 0 ? "var(--axis)" : "var(--grid)" });
+			el("text", { x: L - 8, y: y(v) + 4, "text-anchor": "end", "font-size": 11 }, svg, { fill: "var(--muted)" }).textContent = (v * 100) + "%";
+		});
+		(byCost ? costTicks(d0, d1) : monthTicks(d0, d1, pw)).forEach(tk => {
+			if (byCost) el("line", { x1: x(tk.t), x2: x(tk.t), y1: T, y2: y(0), "stroke-width": 1 }, svg, { stroke: "var(--grid)" });
+			el("line", { x1: x(tk.t), x2: x(tk.t), y1: y(0), y2: y(0) + 4, "stroke-width": 1 }, svg, { stroke: "var(--axis)" });
+			el("text", { x: x(tk.t), y: y(0) + 18, "text-anchor": "middle", "font-size": 10.5 }, svg, { fill: "var(--muted)" }).textContent = tk.label;
+		});
+		el("text", { x: L + pw / 2, y: H - 3, "text-anchor": "middle", "font-size": 10.5 }, svg, { fill: "var(--muted)" }).textContent =
+			byCost ? "Görev başı maliyet (log ölçek)" : "Çıkış tarihi";
+
+		const cross = el("line", { y1: T, y2: y(0), "stroke-width": 1, visibility: "hidden" }, svg, { stroke: "var(--axis)" });
+
+		const single = fams.length === 1;
+		const hits = [];
+		const lasts = [];
+		const placed = [];   // tek aile modunda sürüm etiketlerinin kutuları
+		const hasCost = fams.some(f => f.versions.some(v => v.scores[b.id] && costOf(v.scores[b.id]) > 0));
+
+		fams.forEach(f => {
+			const pts = f.versions
+				.filter(v => v.scores[b.id] && (!byCost || costOf(v.scores[b.id]) > 0))
+				.map(v => { const s = v.scores[b.id]; return { v, s, px: x(xValOf(v, s)), py: y(valueOf(s)) }; });
+			if (!pts.length) return;
+			const g = el("g", { class: "fam", "data-fam": f.id }, svg);
+
+			if (state.spread && !c.combo) {
+				pts.forEach(p => {
+					if (byCost) {
+						// efor eğrisi: aynı sürümün seçenekleri maliyet sırasıyla ince çizgi
+						const vs = p.s.variants.filter(vr => vr.cost > 0).sort((a, z) => a.cost - z.cost);
+						if (vs.length > 1) el("path", { d: "M" + vs.map(vr => x(vr.cost).toFixed(1) + "," + y(vr.score).toFixed(1)).join("L"), fill: "none", "stroke-width": 1 }, g, { stroke: f.color, opacity: 0.35 });
+						vs.forEach(vr => el("circle", { cx: x(vr.cost), cy: y(vr.score), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
+					} else {
+						if (p.s.n > 1 && p.s.max - p.s.min > 0.002) {
+							el("rect", { x: p.px - 4, y: y(p.s.max), width: 8, height: Math.max(2, y(p.s.min) - y(p.s.max)), rx: 4 }, g, { fill: f.color, opacity: 0.16 });
+						}
+						p.s.variants.forEach(vr => el("circle", { cx: p.px, cy: y(vr.score), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
+					}
+				});
+			}
+			if (pts.length > 1) {
+				el("path", { d: "M" + pts.map(p => p.px.toFixed(1) + "," + p.py.toFixed(1)).join("L"), fill: "none", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", "stroke-dasharray": f.dash }, g, { stroke: f.color });
+			}
+			pts.forEach((p, i) => {
+				const first = byCost && pts.length > 1 && i === 0;
+				const last = byCost && pts.length > 1 && i === pts.length - 1;
+				el("circle", { cx: p.px, cy: p.py, r: last ? 5.5 : first ? 3.5 : 4 }, g,
+					first ? { fill: "var(--surface)", stroke: f.color, strokeWidth: 2 } : { fill: f.color, stroke: "var(--surface)", strokeWidth: 2 });
+				hits.push({ f, ...p });
+			});
+
+			// tek aile seçiliyken sürüm etiketleri — üstte, sığmazsa altta, o da olmazsa yok
+			if (single) {
+				pts.forEach(p => {
+					const w = p.v.version.length * 6.2;
+					for (const dy of [-10, 17]) {
+						const box = { x0: p.px - w / 2, x1: p.px + w / 2, y0: p.py + dy - 10, y1: p.py + dy + 2 };
+						const clash = placed.some(q => box.x0 < q.x1 + 3 && box.x1 > q.x0 - 3 && box.y0 < q.y1 && box.y1 > q.y0)
+							|| pts.some(o => o !== p && Math.abs(o.px - p.px) < w / 2 + 4 && o.py > box.y0 - 4 && o.py < box.y1 + 4);
+						if (clash) continue;
+						placed.push(box);
+						el("text", { x: p.px, y: p.py + dy, "text-anchor": "middle", "font-size": 10.5 }, g, { fill: "var(--ink-2)" }).textContent = p.v.version;
+						break;
+					}
+				});
+			}
+			lasts.push({ f, p: pts[pts.length - 1], first: pts[0] });
+		});
+
+		if (!hits.length) {
+			el("text", { x: L + pw / 2, y: T + ph / 2, "text-anchor": "middle", "font-size": 12.5 }, svg, { fill: "var(--muted)" }).textContent =
+				!fams.length ? "Model seçilmedi"
+				: byCost && !hasCost ? "Bu test için leaderboard maliyet yayınlamıyor"
+				: c.combo ? "Seçili modellerin hiçbiri bu testlerin hepsinde ölçülmemiş"
+				: "Seçili modellerin bu testte sonucu yok";
+		}
+
+		// alt başlık
+		if (!lasts.length) sub.textContent = "";
+		else if (byCost) {
+			if (single && lasts[0].p !== lasts[0].first) {
+				const { first: a, p: z } = lasts[0];
+				sub.textContent = a.v.label + " " + fmtCost(costOf(a.s)) + " → " + z.v.label + " " + fmtCost(costOf(z.s));
+			} else {
+				const cheap = lasts.reduce((m, l) => costOf(l.p.s) < costOf(m.p.s) ? l : m);
+				sub.textContent = "En ucuz son sürüm: " + cheap.p.v.label + " · " + fmtCost(costOf(cheap.p.s)) + " · " + fmt(valueOf(cheap.p.s));
+			}
+		} else if (single && hits.length > 1) {
+			const a = hits[0], z = hits[hits.length - 1];
+			sub.textContent = a.v.label + " " + fmt(valueOf(a.s)) + " → " + z.v.label + " " + fmt(valueOf(z.s));
+		} else {
+			const top = lasts.reduce((m, l) => valueOf(l.p.s) > valueOf(m.p.s) ? l : m);
+			sub.textContent = "En yüksek son sürüm: " + top.p.v.label + " · " + fmt(valueOf(top.p.s));
+		}
+
+		// hover: en yakın nokta
+		const overlay = el("rect", { x: L - 10, y: 0, width: pw + 20 + R, height: H }, svg, { fill: "transparent" });
+		const hide = () => { tip.hidden = true; cross.setAttribute("visibility", "hidden"); setHover(null); };
+		const onMove = e => {
+			const r = svg.getBoundingClientRect();
+			const k = W / r.width;
+			const mx = (e.clientX - r.left) * k, my = (e.clientY - r.top) * k;
+			let best = null, bd = 30 * 30;
+			hits.forEach(h => { const d = (h.px - mx) ** 2 + (h.py - my) ** 2; if (d < bd) { bd = d; best = h; } });
+			if (!best) return hide();
+			cross.setAttribute("x1", best.px); cross.setAttribute("x2", best.px);
+			cross.setAttribute("visibility", "visible");
+			if (fams.length > 1) setHover(best.f.id);
+			const s = best.s;
+			const cost = costOf(s);
+			tip.innerHTML =
+				'<div class="hd">' + swatch(best.f) + esc(best.v.label) + '</div>' +
+				'<div class="rng">' + fmtMonth(best.v.t) + (cost > 0 ? " · görev başı " + fmtCost(cost) : "") + '</div>' +
+				'<div class="big">' + fmt(valueOf(s)) + '</div>' +
+				'<div class="rng">' + (s.combo
+					? s.n + " testin ortalaması · " + (state.mode === "mean" ? "her test kendi efor ortalaması" : "her testte en iyi seçenek")
+					: (state.mode === "mean" ? (s.n > 1 ? s.n + " seçeneğin ortalaması" : "tek seçenek") : "en iyi seçenek") +
+						(s.n > 1 ? " · " + fmt(s.min) + "–" + fmt(s.max) : "")) + '</div>' +
+				'<ul>' + s.variants.map(vr => '<li><span>' + esc(vr.name) + '</span><span>' + fmt(vr.score) +
+					(vr.cost > 0 ? ' <span class="rng">' + fmtCost(vr.cost) + '</span>' : "") + '</span></li>').join("") + '</ul>';
+			tip.hidden = false;
+			const scale = r.width / W;
+			const px = best.px * scale + host.offsetLeft;
+			const tw = tip.offsetWidth;
+			let left = px + 16;
+			if (left + tw > c.card.clientWidth - 8) left = px - tw - 16;
+			tip.style.left = Math.max(8, left) + "px";
+			tip.style.top = (host.offsetTop + 6) + "px";
+		};
+		overlay.addEventListener("pointermove", onMove);
+		overlay.addEventListener("pointerdown", onMove);
+		overlay.addEventListener("pointerleave", hide);
+	}
+
+	function drawTable(fams) {
+		let h = "<thead><tr><th>Sürüm</th><th>Çıkış</th>" + DATA.benchmarks.map(b => "<th>" + esc(b.label) + "</th>").join("") + "<th>" + (state.combo === "all" ? "Ort. 1+2+3" : "Ort. 1+2") + "</th></tr></thead><tbody>";
+		fams.forEach(f => {
+			h += '<tr class="fh"><td colspan="' + (DATA.benchmarks.length + 3) + '">' + swatch(f) + " " + esc(f.name) + "</td></tr>";
+			f.versions.forEach(v => {
+				h += "<tr><td>" + esc(v.label) + '</td><td class="dt">' + (v.released ? fmtMonth(v.t) : "—") + "</td>" + DATA.benchmarks.map(b => {
+					const s = v.scores[b.id];
+					return s ? "<td>" + fmt(valueOf(s)) + '<span class="n">n=' + s.n + (costOf(s) > 0 ? " · " + fmtCost(costOf(s)) : "") + "</span></td>" : '<td class="na">—</td>';
+				}).join("") + (v.scores.combo ? "<td>" + fmt(valueOf(v.scores.combo)) + "</td>" : '<td class="na">—</td>') + "</tr>";
+			});
+		});
+		if (!fams.length) h += '<tr><td class="na" colspan="6">Model seçilmedi</td></tr>';
+		document.getElementById("table").innerHTML = h + "</tbody>";
+	}
+
+	function render() {
+		const fams = selectedFamilies();
+		computeCombo();
+		const dom = domain(fams);
+		cards.forEach(c => draw(c, fams, dom));
+		draw(combo, fams, domain(fams, "combo"));
+		drawTable(fams);
+	}
+
+	function update() {
+		try { localStorage.setItem(STORE_KEY, JSON.stringify([...state.selected])); } catch (e) {}
+		DATA.families.forEach(f => { document.getElementById("fam-" + f.id).checked = state.selected.has(f.id); });
+		document.getElementById("pick-count").textContent = state.selected.size === DATA.families.length ? "tümü" : state.selected.size + " / " + DATA.families.length;
+		drawLegend();
+		render();
+	}
+
+	document.querySelectorAll("[data-mode]").forEach(btn => btn.addEventListener("click", () => {
+		state.mode = btn.dataset.mode;
+		document.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+		render();
+	}));
+	document.querySelectorAll("[data-axis]").forEach(btn => btn.addEventListener("click", () => {
+		state.axis = btn.dataset.axis;
+		document.querySelectorAll("[data-axis]").forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+		render();
+	}));
+	document.querySelectorAll("[data-combo]").forEach(btn => btn.addEventListener("click", () => {
+		state.combo = btn.dataset.combo;
+		document.querySelectorAll("[data-combo]").forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+		document.getElementById("combo-title").textContent = state.combo === "all" ? "ARC-AGI-1 + 2 + 3 ortalaması" : "ARC-AGI-1 + 2 ortalaması";
+		render();
+	}));
+	document.getElementById("show-spread").addEventListener("change", e => { state.spread = e.target.checked; render(); });
+
+	let raf;
+	new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }).observe(document.getElementById("charts"));
+	update();
+})();
+</script>
+</body>
+</html>
