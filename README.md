@@ -24,6 +24,10 @@ Sonra `index.html`'i tarayıcıda aç (sunucu gerekmez).
   sürüm çıkınca ilgili aileye bir satır eklenir; hiçbir aileye girmeyen satırlar build
   sonunda listelenir.
 - Sürümün tarihi, seçeneklerinde en sık geçen `modelReleaseDate`'tir.
+- **Sağlayıcı kadro ortalaması** ("Claude / GPT / Gemini (tümü)", `lineup_families`): sağlayıcının
+  her model çıkışında, her ailesinin o güne kadarki en güncel sürümünün ortalaması. Bir ailenin
+  en yeni sürümü o testte ölçülmemişse ailenin o testte ölçülmüş en son sürümü kullanılır.
+  Tek aileli sağlayıcılara eklenmez (kadro = aile).
 - Renk sağlayıcıdan, çizgi deseni sağlayıcı içindeki sıradan gelir (`index.html`).
 - Maliyet ekseni: görev başı $ (log). "Ortalama"da seçeneklerin maliyet ortalaması (`meanCost`),
   "En iyi seçenek"te en yüksek skorlu seçeneğin kendi maliyeti (`bestCost`). ARC-AGI-3 için
