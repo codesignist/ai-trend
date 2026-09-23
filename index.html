@@ -92,11 +92,10 @@ button { font: inherit; color: inherit; }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 /* filtre çubuğu: kaydırınca üstte kalır; yapışınca lejant tek satıra iner */
-.bar-sentinel { height: 0; margin-bottom: -34px; }
 .bar {
 	position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
 	display: grid; gap: 12px;
-	margin-inline: -20px; padding: 10px 20px;
+	margin: -10px -20px 0; padding: 10px 20px;
 	background: var(--page);
 	transition: box-shadow 0.15s;
 }
@@ -217,7 +216,6 @@ body { margin: 0; font-size: 14px; }
 		<p class="meta" id="meta"></p>
 	</header>
 
-	<div class="bar-sentinel" id="bar-sentinel" aria-hidden="true"></div>
 	<div class="bar" id="bar">
 	<div class="controls">
 		<button type="button" class="pick-btn" id="pick-btn" aria-expanded="false" aria-controls="pick-panel">
@@ -227,6 +225,7 @@ body { margin: 0; font-size: 14px; }
 		<div class="panel" id="pick-panel" hidden>
 			<div class="presets">
 				<button type="button" data-preset="featured">Amiral modeller</button>
+				<button type="button" data-preset="providers">Sağlayıcı ortalamaları</button>
 				<button type="button" data-preset="all">Tümü</button>
 				<button type="button" data-preset="opus">Sadece Opus</button>
 				<button type="button" data-preset="none">Temizle</button>
@@ -265,7 +264,7 @@ body { margin: 0; font-size: 14px; }
 		<div class="tip" hidden></div>
 	</article>
 
-	<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3 için leaderboard maliyet yayınlamıyor. <strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar; maliyet ekseninde ARC-AGI-1 ve 2 maliyetlerinin ortalaması kullanılır. GPT hattı 5.6'dan sonra en üst kademeyle (Sol → Astra) devam ediyor; GPT-6'nın "Provider Adapter" sonuçları dahil değil.</p>
+	<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3 için leaderboard maliyet yayınlamıyor. <strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar; maliyet ekseninde ARC-AGI-1 ve 2 maliyetlerinin ortalaması kullanılır. <strong>Kalın yarı saydam hatlar</strong> sağlayıcının kadro ortalamasıdır: her model çıkışında, sağlayıcının her ailesinin o güne kadarki en güncel modelinin ortalaması. Yenilenmeyen küçük modeller (ör. Haiku 4.5) kadroda kaldıkça ortalamayı aşağıda tutar. GPT hattı 5.6'dan sonra en üst kademeyle (Sol → Astra) devam ediyor; GPT-6'nın "Provider Adapter" sonuçları dahil değil.</p>
 
 	<details>
 		<summary>Tablo</summary>
@@ -285,9 +284,15 @@ body { margin: 0; font-size: 14px; }
 	// aile başına renk + desen (sağlayıcı içindeki sıra)
 	const rankInProvider = {};
 	DATA.families.forEach(f => {
-		rankInProvider[f.provider] = (rankInProvider[f.provider] ?? -1) + 1;
 		f.color = "var(" + (PROVIDER_VAR[f.provider] || "--muted") + ")";
-		f.dash = DASHES[rankInProvider[f.provider] % DASHES.length];
+		if (f.aggregate) {
+			// sağlayıcı kadro ortalaması: kalın, yarı saydam, düz
+			f.dash = ""; f.width = 5; f.lineOpacity = 0.45;
+		} else {
+			rankInProvider[f.provider] = (rankInProvider[f.provider] ?? -1) + 1;
+			f.dash = DASHES[rankInProvider[f.provider] % DASHES.length];
+			f.width = 2; f.lineOpacity = 1;
+		}
 		f.versions.forEach(v => v.t = Date.parse(v.released));
 	});
 	const famById = Object.fromEntries(DATA.families.map(f => [f.id, f]));
@@ -296,6 +301,11 @@ body { margin: 0; font-size: 14px; }
 		featured: () => DATA.families.filter(f => f.featured).map(f => f.id),
 		all: () => DATA.families.map(f => f.id),
 		opus: () => ["opus"],
+		// sağlayıcı başına tek hat: kadro ortalaması, tek aileli sağlayıcıda ailenin kendisi
+		providers: () => {
+			const multi = new Set(DATA.families.filter(f => f.aggregate).map(f => f.provider));
+			return DATA.families.filter(f => f.aggregate || !multi.has(f.provider)).map(f => f.id);
+		},
 		none: () => [],
 	};
 
@@ -322,11 +332,14 @@ body { margin: 0; font-size: 14px; }
 	}
 	function swatch(f) {
 		return '<svg width="26" height="10" viewBox="0 0 26 10" aria-hidden="true"><line x1="1" y1="5" x2="25" y2="5" style="stroke:' + f.color +
-			';stroke-width:2;stroke-linecap:round" stroke-dasharray="' + f.dash + '"/><circle cx="13" cy="5" r="3.2" style="fill:' + f.color + '"/></svg>';
+			';stroke-width:' + Math.min(f.width, 4) + ';stroke-opacity:' + f.lineOpacity + ';stroke-linecap:round" stroke-dasharray="' + f.dash + '"/><circle cx="13" cy="5" r="3.2" style="fill:' + f.color + '"/></svg>';
 	}
 	const selectedFamilies = () => DATA.families.filter(f => state.selected.has(f.id));
 	const valueOf = s => state.mode === "mean" ? s.mean : s.max;
 	const costOf = s => state.mode === "mean" ? s.meanCost : s.bestCost;
+	// seçenek / kadro üyesi: üyede max+bestCost varsa moda göre seçilir
+	const vScore = vr => state.mode === "max" && vr.max != null ? vr.max : vr.score;
+	const vCost = vr => state.mode === "max" && vr.bestCost != null ? vr.bestCost : vr.cost;
 	const fmtCost = v => "$" + v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: v < 0.01 ? 3 : 2 });
 	const fmtCostTick = v => "$" + v.toLocaleString("tr-TR", { maximumFractionDigits: 3 });
 
@@ -342,10 +355,10 @@ body { margin: 0; font-size: 14px; }
 	const providers = [...new Set(DATA.families.map(f => f.provider))];
 	groupsHost.innerHTML = providers.map(p =>
 		'<div class="group"><h3>' + esc(p) + '</h3>' +
-		DATA.families.filter(f => f.provider === p).map(f => {
+		DATA.families.filter(f => f.provider === p).sort((a, z) => (z.aggregate ? 1 : 0) - (a.aggregate ? 1 : 0)).map(f => {
 			const first = f.versions[0].version, last = f.versions[f.versions.length - 1].version;
 			return '<label class="opt"><input type="checkbox" id="fam-' + f.id + '" data-fam="' + f.id + '">' + swatch(f) +
-				'<span>' + esc(f.name) + '</span><span class="span">' + (f.versions.length > 1 ? esc(first) + " → " + esc(last) : esc(first)) + '</span></label>';
+				'<span>' + esc(f.name) + '</span><span class="span">' + (f.aggregate ? "kadro ortalaması" : f.versions.length > 1 ? esc(first) + " → " + esc(last) : esc(first)) + '</span></label>';
 		}).join("") + '</div>'
 	).join("");
 
@@ -457,7 +470,7 @@ body { margin: 0; font-size: 14px; }
 		}
 		// tüm testlerde ortak log aralığı; efor noktaları da sığsın diye seçenek maliyetleri dahil
 		const cs = fams.flatMap(f => vers(f).flatMap(v => (only ? [v.scores[only]] : Object.values(v.scores)).flatMap(s =>
-			[costOf(s), ...(state.spread ? s.variants.map(vr => vr.cost) : [])]))).filter(c => c > 0);
+			[costOf(s), ...(state.spread ? s.variants.map(vCost) : [])]))).filter(c => c > 0);
 		if (!cs.length) return [0.01, 10];
 		let a = Math.floor(Math.log10(Math.min(...cs))), z = Math.ceil(Math.log10(Math.max(...cs)));
 		if (z - a < 2) { a--; z++; }
@@ -534,19 +547,19 @@ body { margin: 0; font-size: 14px; }
 				pts.forEach(p => {
 					if (byCost) {
 						// efor eğrisi: aynı sürümün seçenekleri maliyet sırasıyla ince çizgi
-						const vs = p.s.variants.filter(vr => vr.cost > 0).sort((a, z) => a.cost - z.cost);
-						if (vs.length > 1) el("path", { d: "M" + vs.map(vr => x(vr.cost).toFixed(1) + "," + y(vr.score).toFixed(1)).join("L"), fill: "none", "stroke-width": 1 }, g, { stroke: f.color, opacity: 0.35 });
-						vs.forEach(vr => el("circle", { cx: x(vr.cost), cy: y(vr.score), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
+						const vs = p.s.variants.filter(vr => vCost(vr) > 0).sort((a, z) => vCost(a) - vCost(z));
+						if (vs.length > 1 && !p.s.lineup) el("path", { d: "M" + vs.map(vr => x(vCost(vr)).toFixed(1) + "," + y(vScore(vr)).toFixed(1)).join("L"), fill: "none", "stroke-width": 1 }, g, { stroke: f.color, opacity: 0.35 });
+						vs.forEach(vr => el("circle", { cx: x(vCost(vr)), cy: y(vScore(vr)), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
 					} else {
-						if (p.s.n > 1 && p.s.max - p.s.min > 0.002) {
+						if (!p.s.lineup && p.s.n > 1 && p.s.max - p.s.min > 0.002) {
 							el("rect", { x: p.px - 4, y: y(p.s.max), width: 8, height: Math.max(2, y(p.s.min) - y(p.s.max)), rx: 4 }, g, { fill: f.color, opacity: 0.16 });
 						}
-						p.s.variants.forEach(vr => el("circle", { cx: p.px, cy: y(vr.score), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
+						p.s.variants.forEach(vr => el("circle", { cx: p.px, cy: y(vScore(vr)), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
 					}
 				});
 			}
 			if (pts.length > 1) {
-				el("path", { d: "M" + pts.map(p => p.px.toFixed(1) + "," + p.py.toFixed(1)).join("L"), fill: "none", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", "stroke-dasharray": f.dash }, g, { stroke: f.color });
+				el("path", { d: "M" + pts.map(p => p.px.toFixed(1) + "," + p.py.toFixed(1)).join("L"), fill: "none", "stroke-width": f.width, "stroke-linejoin": "round", "stroke-linecap": "round", "stroke-dasharray": f.dash }, g, { stroke: f.color, strokeOpacity: f.lineOpacity });
 			}
 			pts.forEach((p, i) => {
 				const first = byCost && pts.length > 1 && i === 0;
@@ -619,12 +632,14 @@ body { margin: 0; font-size: 14px; }
 				'<div class="hd">' + swatch(best.f) + esc(best.v.label) + '</div>' +
 				'<div class="rng">' + fmtMonth(best.v.t) + (cost > 0 ? " · görev başı " + fmtCost(cost) : "") + '</div>' +
 				'<div class="big">' + fmt(valueOf(s)) + '</div>' +
-				'<div class="rng">' + (s.combo
+				'<div class="rng">' + (s.lineup
+					? s.n + " modelin kadro ortalaması" + (state.mode === "max" ? " · her modelin en iyi seçeneği" : "")
+					: s.combo
 					? s.n + " testin ortalaması · " + (state.mode === "mean" ? "her test kendi efor ortalaması" : "her testte en iyi seçenek")
 					: (state.mode === "mean" ? (s.n > 1 ? s.n + " seçeneğin ortalaması" : "tek seçenek") : "en iyi seçenek") +
 						(s.n > 1 ? " · " + fmt(s.min) + "–" + fmt(s.max) : "")) + '</div>' +
-				'<ul>' + s.variants.map(vr => '<li><span>' + esc(vr.name) + '</span><span>' + fmt(vr.score) +
-					(vr.cost > 0 ? ' <span class="rng">' + fmtCost(vr.cost) + '</span>' : "") + '</span></li>').join("") + '</ul>';
+				'<ul>' + s.variants.map(vr => '<li><span>' + esc(vr.name) + '</span><span>' + fmt(vScore(vr)) +
+					(vCost(vr) > 0 ? ' <span class="rng">' + fmtCost(vCost(vr)) + '</span>' : "") + '</span></li>').join("") + '</ul>';
 			tip.hidden = false;
 			const scale = r.width / W;
 			const px = best.px * scale + host.offsetLeft;
@@ -690,7 +705,7 @@ body { margin: 0; font-size: 14px; }
 	document.getElementById("show-spread").addEventListener("change", e => { state.spread = e.target.checked; render(); });
 
 	const bar = document.getElementById("bar");
-	new IntersectionObserver(([e]) => bar.classList.toggle("stuck", !e.isIntersecting)).observe(document.getElementById("bar-sentinel"));
+	new IntersectionObserver(([e]) => bar.classList.toggle("stuck", !e.isIntersecting)).observe(document.querySelector("header"));
 
 	let raf;
 	new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }).observe(document.getElementById("charts"));

@@ -128,6 +128,64 @@ def variant_label(display_name):
     return m.group(1) if m else (display_name or "standart")
 
 
+# Sağlayıcı kadro ortalaması: birden fazla ailesi olan sağlayıcıya bir "(tümü)" hattı.
+LINEUP_NAMES = {"Anthropic": "Claude", "OpenAI": "GPT", "Google": "Gemini"}
+
+
+def lineup_families(families):
+    """Her model çıkışında, sağlayıcının her ailesinin o güne kadar çıkmış en güncel
+    sürümünün ortalaması. Bir ailenin en yeni sürümü o testte ölçülmemişse, ailenin
+    o testte ölçülmüş en son sürümü kullanılır."""
+    out = []
+    by_provider = collections.defaultdict(list)
+    for fam in families:
+        by_provider[fam["provider"]].append(fam)
+    for provider, fams in by_provider.items():
+        if len(fams) < 2:
+            continue   # tek aileli sağlayıcıda kadro = ailenin kendisi
+        brand = LINEUP_NAMES.get(provider, provider)
+        dates = sorted({v["released"] for f in fams for v in f["versions"] if v["released"]})
+        versions = []
+        for day in dates:
+            released = [v["label"] for f in fams for v in f["versions"] if v["released"] == day]
+            scores = {}
+            for ds_id, _ in BENCHMARKS:
+                members = []
+                for f in fams:
+                    scored = [v for v in f["versions"] if v["released"] and v["released"] <= day and ds_id in v["scores"]]
+                    if scored:
+                        members.append((scored[-1]["label"], scored[-1]["scores"][ds_id]))
+                if not members:
+                    continue
+                mean_costs = [s["meanCost"] for _, s in members if s["meanCost"] is not None]
+                best_costs = [s["bestCost"] for _, s in members if s["bestCost"] is not None]
+                scores[ds_id] = {
+                    "lineup": True,
+                    "n": len(members),
+                    "mean": statistics.fmean(s["mean"] for _, s in members),
+                    "max": statistics.fmean(s["max"] for _, s in members),
+                    "min": statistics.fmean(s["min"] for _, s in members),
+                    "meanCost": statistics.fmean(mean_costs) if mean_costs else None,
+                    "bestCost": statistics.fmean(best_costs) if best_costs else None,
+                    # üyeler: tooltip'te ortalama / en iyi moduna göre gösterilir
+                    "variants": sorted(({"name": label, "score": s["mean"], "max": s["max"],
+                                         "cost": s["meanCost"], "bestCost": s["bestCost"]} for label, s in members),
+                                       key=lambda m: -m["score"]),
+                }
+            if scores:
+                ver = " + ".join(released)
+                versions.append({"version": ver, "label": f"{brand} kadrosu · {ver}", "released": day, "scores": scores})
+        out.append({
+            "id": "lineup-" + provider.lower().replace(" ", "-").replace(".", ""),
+            "name": f"{brand} (tümü)",
+            "provider": provider,
+            "featured": False,
+            "aggregate": True,
+            "versions": versions,
+        })
+    return out
+
+
 def main():
     models = {m["id"]: m for m in json.loads((RAW / "models.json").read_text(encoding="utf-8"))}
     evals = json.loads((RAW / "evaluations.json").read_text(encoding="utf-8"))
@@ -190,6 +248,8 @@ def main():
             "featured": fam.get("featured", False),
             "versions": versions,
         })
+
+    families += lineup_families(families)
 
     fetched = datetime.date.fromtimestamp((RAW / "evaluations.json").stat().st_mtime).isoformat()
     out = {
