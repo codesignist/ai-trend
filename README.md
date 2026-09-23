@@ -3,7 +3,7 @@
 ARC Prize leaderboard'undaki (https://arcprize.org/leaderboard) ARC-AGI-1 / 2 / 3
 sonuçlarından **model ailesi eğrileri**: her sürümün tüm efor seçenekleri tek noktaya
 (ortalama) indirgenir, aynı ailenin sürümleri çıkış tarihine göre tek çizgide birleşir.
-Sayfada aileler açılır listeden seçilir (Amiral modeller / Tümü / Sadece Opus ön ayarları).
+Sayfada aileler açılır listeden seçilir (Amiral modeller / Sağlayıcı ortalamaları / Tüm modeller / Tümü ön ayarları).
 
 **Canlı sayfa:** https://codesignist.github.io/ai-trend/
 

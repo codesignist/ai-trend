@@ -227,7 +227,7 @@ body { margin: 0; font-size: 14px; }
 				<button type="button" data-preset="featured">Amiral modeller</button>
 				<button type="button" data-preset="providers">Sağlayıcı ortalamaları</button>
 				<button type="button" data-preset="all">Tümü</button>
-				<button type="button" data-preset="opus">Sadece Opus</button>
+				<button type="button" data-preset="models">Tüm modeller</button>
 				<button type="button" data-preset="none">Temizle</button>
 			</div>
 			<div id="pick-groups"></div>
@@ -300,7 +300,8 @@ body { margin: 0; font-size: 14px; }
 	const presets = {
 		featured: () => DATA.families.filter(f => f.featured).map(f => f.id),
 		all: () => DATA.families.map(f => f.id),
-		opus: () => ["opus"],
+		// sağlayıcı ortalamaları hariç tüm aileler
+		models: () => DATA.families.filter(f => !f.aggregate).map(f => f.id),
 		// sağlayıcı başına tek hat: kadro ortalaması, tek aileli sağlayıcıda ailenin kendisi
 		providers: () => {
 			const multi = new Set(DATA.families.filter(f => f.aggregate).map(f => f.provider));
