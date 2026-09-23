@@ -264,7 +264,7 @@ body { margin: 0; font-size: 14px; }
 		<div class="tip" hidden></div>
 	</article>
 
-	<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3 için leaderboard maliyet yayınlamıyor. <strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar; maliyet ekseninde ARC-AGI-1 ve 2 maliyetlerinin ortalaması kullanılır. <strong>Kalın yarı saydam hatlar</strong> sağlayıcının kadro ortalamasıdır: her model çıkışında, sağlayıcının her ailesinin o güne kadarki en güncel modelinin ortalaması. Yenilenmeyen küçük modeller (ör. Haiku 4.5) kadroda kaldıkça ortalamayı aşağıda tutar. GPT hattı 5.6'dan sonra en üst kademeyle (Sol → Astra) devam ediyor; GPT-6'nın "Provider Adapter" sonuçları dahil değil.</p>
+	<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3 için leaderboard maliyet yayınlamıyor. <strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Buradaki efor noktaları her seçeneğin testler arası ortalamasıdır; yalnızca testlerin hepsinde ölçülmüş seçenekler görünür. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar; maliyet ekseninde ARC-AGI-1 ve 2 maliyetlerinin ortalaması kullanılır. <strong>Kalın yarı saydam hatlar</strong> sağlayıcının kadro ortalamasıdır: her model çıkışında, sağlayıcının her ailesinin o güne kadarki en güncel modelinin ortalaması. Yenilenmeyen küçük modeller (ör. Haiku 4.5) kadroda kaldıkça ortalamayı aşağıda tutar. GPT hattı 5.6'dan sonra en üst kademeyle (Sol → Astra) devam ediyor; GPT-6'nın "Provider Adapter" sonuçları dahil değil.</p>
 
 	<details>
 		<summary>Tablo</summary>
@@ -445,9 +445,28 @@ body { margin: 0; font-size: 14px; }
 			min: avg(ss.map(s => s.min)),
 			meanCost: mc.length ? avg(mc) : null,
 			bestCost: bc.length ? avg(bc) : null,
+			lineup: ss.every(s => s.lineup),
 			variants: parts.map(([id, s]) => ({ name: benchLabel[id], score: valueOf(s), cost: costOf(s) })),
+			efforts: comboEfforts(ss),
 		};
 	}
+
+	// efor seçeneklerinin testler arası ortalaması: yalnız testlerin hepsinde ölçülen seçenek girer.
+	// Ad eşleşmesi virgülden sonraki son parça üzerinden ("120K, Max" = "Max", "Thinking, High" = "High").
+	const effortKey = name => String(name).split(",").pop().trim().toLowerCase();
+	function comboEfforts(ss) {
+		const maps = ss.map(s => new Map(s.variants.map(vr => [effortKey(vr.name), vr])));
+		const out = [];
+		maps[0].forEach((first, key) => {
+			const vs = maps.map(m => m.get(key));
+			if (vs.some(vr => !vr)) return;
+			const mean = k => { const a = vs.map(vr => vr[k]).filter(x => x != null && (k === "score" || k === "max" || x > 0)); return a.length ? avg(a) : null; };
+			out.push({ name: String(first.name).split(",").pop().trim(), score: mean("score"), max: vs.every(vr => vr.max != null) ? mean("max") : null, cost: mean("cost"), bestCost: mean("bestCost") });
+		});
+		return out.sort((a, z) => z.score - a.score);
+	}
+	// yayılımda çizilecek noktalar: büyük grafikte testler değil, testler arası efor ortalamaları
+	const spreadList = s => s.combo ? (s.efforts || []) : s.variants;
 	function computeCombo() {
 		DATA.families.forEach(f => f.versions.forEach(v => {
 			const cs = comboScore(v);
@@ -471,7 +490,7 @@ body { margin: 0; font-size: 14px; }
 		}
 		// tüm testlerde ortak log aralığı; efor noktaları da sığsın diye seçenek maliyetleri dahil
 		const cs = fams.flatMap(f => vers(f).flatMap(v => (only ? [v.scores[only]] : Object.values(v.scores)).flatMap(s =>
-			[costOf(s), ...(state.spread ? s.variants.map(vCost) : [])]))).filter(c => c > 0);
+			[costOf(s), ...(state.spread ? spreadList(s).map(vCost) : [])]))).filter(c => c > 0);
 		if (!cs.length) return [0.01, 10];
 		let a = Math.floor(Math.log10(Math.min(...cs))), z = Math.ceil(Math.log10(Math.max(...cs)));
 		if (z - a < 2) { a--; z++; }
@@ -544,18 +563,18 @@ body { margin: 0; font-size: 14px; }
 			if (!pts.length) return;
 			const g = el("g", { class: "fam", "data-fam": f.id }, svg);
 
-			if (state.spread && !c.combo) {
+			if (state.spread) {
 				pts.forEach(p => {
 					if (byCost) {
 						// efor eğrisi: aynı sürümün seçenekleri maliyet sırasıyla ince çizgi
-						const vs = p.s.variants.filter(vr => vCost(vr) > 0).sort((a, z) => vCost(a) - vCost(z));
+						const vs = spreadList(p.s).filter(vr => vCost(vr) > 0).sort((a, z) => vCost(a) - vCost(z));
 						if (vs.length > 1 && !p.s.lineup) el("path", { d: "M" + vs.map(vr => x(vCost(vr)).toFixed(1) + "," + y(vScore(vr)).toFixed(1)).join("L"), fill: "none", "stroke-width": 1 }, g, { stroke: f.color, opacity: 0.35 });
 						vs.forEach(vr => el("circle", { cx: x(vCost(vr)), cy: y(vScore(vr)), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
 					} else {
-						if (!p.s.lineup && p.s.n > 1 && p.s.max - p.s.min > 0.002) {
+						if (!p.s.lineup && !p.s.combo && p.s.n > 1 && p.s.max - p.s.min > 0.002) {
 							el("rect", { x: p.px - 4, y: y(p.s.max), width: 8, height: Math.max(2, y(p.s.min) - y(p.s.max)), rx: 4 }, g, { fill: f.color, opacity: 0.16 });
 						}
-						p.s.variants.forEach(vr => el("circle", { cx: p.px, cy: y(vScore(vr)), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
+						spreadList(p.s).forEach(vr => el("circle", { cx: p.px, cy: y(vScore(vr)), r: 2.3 }, g, { fill: f.color, opacity: 0.45 }));
 					}
 				});
 			}
@@ -633,14 +652,19 @@ body { margin: 0; font-size: 14px; }
 				'<div class="hd">' + swatch(best.f) + esc(best.v.label) + '</div>' +
 				'<div class="rng">' + fmtMonth(best.v.t) + (cost > 0 ? " · görev başı " + fmtCost(cost) : "") + '</div>' +
 				'<div class="big">' + fmt(valueOf(s)) + '</div>' +
-				'<div class="rng">' + (s.lineup
-					? s.n + " modelin kadro ortalaması" + (state.mode === "max" ? " · her modelin en iyi seçeneği" : "")
-					: s.combo
+				'<div class="rng">' + (s.combo
 					? s.n + " testin ortalaması · " + (state.mode === "mean" ? "her test kendi efor ortalaması" : "her testte en iyi seçenek")
+					: s.lineup
+					? s.n + " modelin kadro ortalaması" + (state.mode === "max" ? " · her modelin en iyi seçeneği" : "")
 					: (state.mode === "mean" ? (s.n > 1 ? s.n + " seçeneğin ortalaması" : "tek seçenek") : "en iyi seçenek") +
 						(s.n > 1 ? " · " + fmt(s.min) + "–" + fmt(s.max) : "")) + '</div>' +
 				'<ul>' + s.variants.map(vr => '<li><span>' + esc(vr.name) + '</span><span>' + fmt(vScore(vr)) +
-					(vCost(vr) > 0 ? ' <span class="rng">' + fmtCost(vCost(vr)) + '</span>' : "") + '</span></li>').join("") + '</ul>';
+					(vCost(vr) > 0 ? ' <span class="rng">' + fmtCost(vCost(vr)) + '</span>' : "") + '</span></li>').join("") + '</ul>' +
+				(s.combo && s.efforts && s.efforts.length
+					? '<div class="rng" style="margin-top:8px">' + (s.lineup ? "Kadro üyeleri" : "Efor seçenekleri") + ' · testler ortalaması</div><ul style="margin-top:4px;padding-top:4px">' +
+						s.efforts.map(vr => '<li><span>' + esc(vr.name) + '</span><span>' + fmt(vScore(vr)) +
+							(vCost(vr) > 0 ? ' <span class="rng">' + fmtCost(vCost(vr)) + '</span>' : "") + '</span></li>').join("") + '</ul>'
+					: "");
 			tip.hidden = false;
 			const scale = r.width / W;
 			const px = best.px * scale + host.offsetLeft;
