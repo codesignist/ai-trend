@@ -40,3 +40,7 @@ Sonra `index.html`'i tarayıcıda aç (sunucu gerekmez).
 o-serisi, GPT-4.x, GPT Nano, GPT-5.6 Terra, Gemini Deep Think / Flash-Lite, DeepSeek V4 Flash,
 Inkling, Llama, Mistral, Qwen, Minimax, üçüncü taraf "Refine." çözümleri ve GPT-6
 "Provider Adapter" sonuçları. Eklemek için `FAMILIES`'e aile yazmak yeterli.
+
+---
+
+Hazırlayan: Yunus EŞ · [yunuses.com](https://yunuses.com)
