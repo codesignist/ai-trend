@@ -291,8 +291,8 @@ body { margin: 0; font-size: 14px; }
 	</article>
 
 	<div class="notes">
-		<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3 için leaderboard maliyet yayınlamıyor.</p>
-		<p class="note"><strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Buradaki efor noktaları her seçeneğin testler arası ortalamasıdır; yalnızca testlerin hepsinde ölçülmüş seçenekler görünür. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar; maliyet ekseninde ARC-AGI-1 ve 2 maliyetlerinin ortalaması kullanılır.</p>
+		<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3'te leaderboard görev başı değil koşunun <em>toplam</em> maliyetini yayınlıyor; o grafiğin maliyet ekseni bu yüzden kendi ölçeğinde.</p>
+		<p class="note"><strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Buradaki efor noktaları her seçeneğin testler arası ortalamasıdır; yalnızca testlerin hepsinde ölçülmüş seçenekler görünür. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar. Maliyet ekseninde iki görünümde de ARC-AGI-1 ve 2'nin görev başı maliyet ortalaması kullanılır.</p>
 		<p class="note"><strong>Kalın yarı saydam hatlar</strong> sağlayıcının kadro ortalamasıdır: her model çıkışında, sağlayıcının her ailesinin o güne kadarki en güncel modelinin ortalaması. Yenilenmeyen küçük modeller (ör. Haiku 4.5) kadroda kaldıkça ortalamayı aşağıda tutar. GPT hattı 5.6'dan sonra en üst kademeyle (Sol → Astra) devam ediyor; GPT-6'nın "Provider Adapter" sonuçları dahil değil.</p>
 	</div>
 
@@ -376,7 +376,11 @@ body { margin: 0; font-size: 14px; }
 	// seçenek / kadro üyesi: üyede max+bestCost varsa moda göre seçilir
 	const vScore = vr => state.mode === "max" && vr.max != null ? vr.max : vr.score;
 	const vCost = vr => state.mode === "max" && vr.bestCost != null ? vr.bestCost : vr.cost;
-	const fmtCost = v => "$" + v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: v < 0.01 ? 3 : 2 });
+	const fmtCost = v => v >= 1000
+		? "$" + (v / 1000).toLocaleString("tr-TR", { maximumFractionDigits: 1 }) + " bin"
+		: "$" + v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: v < 0.01 ? 3 : 2 });
+	// ARC-AGI-3'te maliyet görev başı değil koşunun toplamı: kendi ölçeğinde çizilir, ortalamalara girmez
+	const RUN_COST = new Set(DATA.benchmarks.filter(b => b.costUnit === "run").map(b => b.id));
 	const fmtCostTick = v => "$" + v.toLocaleString("tr-TR", { maximumFractionDigits: 3 });
 
 	// ---------- üst bilgi ----------
@@ -473,7 +477,9 @@ body { margin: 0; font-size: 14px; }
 		const parts = ids.map(id => [id, v.scores[id]]);
 		if (parts.some(([, s]) => !s)) return null;   // eksik testle ortalama alınmaz
 		const ss = parts.map(([, s]) => s);
-		const mc = ss.map(s => s.meanCost).filter(c => c > 0), bc = ss.map(s => s.bestCost).filter(c => c > 0);
+		const taskCost = parts.map(([id]) => !RUN_COST.has(id));
+		const ts = ss.filter((_, i) => taskCost[i]);
+		const mc = ts.map(s => s.meanCost).filter(c => c > 0), bc = ts.map(s => s.bestCost).filter(c => c > 0);
 		return {
 			combo: true,
 			n: ss.length,
@@ -483,21 +489,23 @@ body { margin: 0; font-size: 14px; }
 			meanCost: mc.length ? avg(mc) : null,
 			bestCost: bc.length ? avg(bc) : null,
 			lineup: ss.every(s => s.lineup),
-			variants: parts.map(([id, s]) => ({ name: benchLabel[id], score: valueOf(s), cost: costOf(s) })),
-			efforts: comboEfforts(ss),
+			variants: parts.map(([id, s]) => ({ name: benchLabel[id], score: valueOf(s), cost: RUN_COST.has(id) ? null : costOf(s) })),
+			efforts: comboEfforts(ss, taskCost),
 		};
 	}
 
 	// efor seçeneklerinin testler arası ortalaması: yalnız testlerin hepsinde ölçülen seçenek girer.
 	// Ad eşleşmesi virgülden sonraki son parça üzerinden ("120K, Max" = "Max", "Thinking, High" = "High").
 	const effortKey = name => String(name).split(",").pop().trim().toLowerCase();
-	function comboEfforts(ss) {
+	// taskCost: maliyet ortalamasına girecek testler (görev başı olanlar)
+	function comboEfforts(ss, taskCost) {
 		const maps = ss.map(s => new Map(s.variants.map(vr => [effortKey(vr.name), vr])));
 		const out = [];
 		maps[0].forEach((first, key) => {
 			const vs = maps.map(m => m.get(key));
 			if (vs.some(vr => !vr)) return;
-			const mean = k => { const a = vs.map(vr => vr[k]).filter(x => x != null && (k === "score" || k === "max" || x > 0)); return a.length ? avg(a) : null; };
+			const isCost = k => k === "cost" || k === "bestCost";
+			const mean = k => { const a = vs.filter((_, i) => !isCost(k) || taskCost[i]).map(vr => vr[k]).filter(x => x != null && (!isCost(k) || x > 0)); return a.length ? avg(a) : null; };
 			out.push({ name: String(first.name).split(",").pop().trim(), score: mean("score"), max: vs.every(vr => vr.max != null) ? mean("max") : null, cost: mean("cost"), bestCost: mean("bestCost") });
 		});
 		return out.sort((a, z) => z.score - a.score);
@@ -511,7 +519,7 @@ body { margin: 0; font-size: 14px; }
 		}));
 	}
 
-	// x değeri: tarih ekseninde çıkış tarihi, maliyet ekseninde görev başı $
+	// x değeri: tarih ekseninde çıkış tarihi, maliyet ekseninde görev başı $ (ARC-AGI-3'te toplam $)
 	const xValOf = (v, s) => state.axis === "time" ? v.t : costOf(s);
 
 	// only: yalnız o skoru olan sürümler (büyük grafik kendi verisine sığar)
@@ -525,8 +533,9 @@ body { margin: 0; font-size: 14px; }
 			if (t1 - t0 < 120 * 864e5) { t0 -= 60 * 864e5; t1 += 60 * 864e5; }
 			return [t0, t1];
 		}
-		// tüm testlerde ortak log aralığı; efor noktaları da sığsın diye seçenek maliyetleri dahil
-		const cs = fams.flatMap(f => vers(f).flatMap(v => (only ? [v.scores[only]] : Object.values(v.scores)).flatMap(s =>
+		// görev başı maliyetli testlerde ortak log aralığı; efor noktaları da sığsın diye seçenek maliyetleri dahil
+		const scoresOf = v => only ? [v.scores[only]] : Object.entries(v.scores).filter(([id]) => !RUN_COST.has(id)).map(([, s]) => s);
+		const cs = fams.flatMap(f => vers(f).flatMap(v => scoresOf(v).flatMap(s =>
 			[costOf(s), ...(state.spread ? spreadList(s).map(vCost) : [])]))).filter(c => c > 0);
 		if (!cs.length) return [0.01, 10];
 		let a = Math.floor(Math.log10(Math.min(...cs))), z = Math.ceil(Math.log10(Math.max(...cs)));
@@ -583,7 +592,7 @@ body { margin: 0; font-size: 14px; }
 			el("text", { x: x(tk.t), y: y(0) + 18, "text-anchor": "middle", "font-size": 10.5 }, svg, { fill: "var(--muted)" }).textContent = tk.label;
 		});
 		el("text", { x: L + pw / 2, y: H - 3, "text-anchor": "middle", "font-size": 10.5 }, svg, { fill: "var(--muted)" }).textContent =
-			byCost ? "Görev başı maliyet (log ölçek)" : "Çıkış tarihi";
+			byCost ? (RUN_COST.has(b.id) ? "Toplam koşu maliyeti (log ölçek)" : "Görev başı maliyet (log ölçek)") : "Çıkış tarihi";
 
 		const cross = el("line", { y1: T, y2: y(0), "stroke-width": 1, visibility: "hidden" }, svg, { stroke: "var(--axis)" });
 
@@ -687,7 +696,7 @@ body { margin: 0; font-size: 14px; }
 			const cost = costOf(s);
 			tip.innerHTML =
 				'<div class="hd">' + swatch(best.f) + esc(best.v.label) + '</div>' +
-				'<div class="rng">' + fmtMonth(best.v.t) + (cost > 0 ? " · görev başı " + fmtCost(cost) : "") + '</div>' +
+				'<div class="rng">' + fmtMonth(best.v.t) + (cost > 0 ? (RUN_COST.has(b.id) ? " · toplam " : " · görev başı ") + fmtCost(cost) : "") + '</div>' +
 				'<div class="big">' + fmt(valueOf(s)) + '</div>' +
 				'<div class="rng">' + (s.combo
 					? s.n + " testin ortalaması · " + (state.mode === "mean" ? "her test kendi efor ortalaması" : "her testte en iyi seçenek")
@@ -723,7 +732,7 @@ body { margin: 0; font-size: 14px; }
 			f.versions.forEach(v => {
 				h += "<tr><td>" + esc(v.label) + '</td><td class="dt">' + (v.released ? fmtMonth(v.t) : "—") + "</td>" + DATA.benchmarks.map(b => {
 					const s = v.scores[b.id];
-					return s ? "<td>" + fmt(valueOf(s)) + '<span class="n">n=' + s.n + (costOf(s) > 0 ? " · " + fmtCost(costOf(s)) : "") + "</span></td>" : '<td class="na">—</td>';
+					return s ? "<td>" + fmt(valueOf(s)) + '<span class="n">n=' + s.n + (costOf(s) > 0 ? " · " + fmtCost(costOf(s)) + (RUN_COST.has(b.id) ? " toplam" : "") : "") + "</span></td>" : '<td class="na">—</td>';
 				}).join("") + (v.scores.combo ? "<td>" + fmt(valueOf(v.scores.combo)) + "</td>" : '<td class="na">—</td>') + "</tr>";
 			});
 		});
@@ -735,7 +744,7 @@ body { margin: 0; font-size: 14px; }
 		const fams = selectedFamilies();
 		computeCombo();
 		const dom = domain(fams);
-		cards.forEach(c => draw(c, fams, dom));
+		cards.forEach(c => draw(c, fams, state.axis === "cost" && RUN_COST.has(c.b.id) ? domain(fams, c.b.id) : dom));
 		draw(combo, fams, domain(fams, "combo"));
 		drawTable(fams);
 	}

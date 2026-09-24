@@ -30,8 +30,9 @@ Sonra `index.html`'i tarayıcıda aç (sunucu gerekmez).
   Tek aileli sağlayıcılara eklenmez (kadro = aile).
 - Renk sağlayıcıdan, çizgi deseni sağlayıcı içindeki sıradan gelir (`index.html`).
 - Maliyet ekseni: görev başı $ (log). "Ortalama"da seçeneklerin maliyet ortalaması (`meanCost`),
-  "En iyi seçenek"te en yüksek skorlu seçeneğin kendi maliyeti (`bestCost`). ARC-AGI-3 için
-  leaderboard maliyet yayınlamıyor.
+  "En iyi seçenek"te en yüksek skorlu seçeneğin kendi maliyeti (`bestCost`). ARC-AGI-3'te
+  leaderboard görev başı değil koşunun toplam maliyetini (`cost`) veriyor (`RUN_COST`); o grafik
+  kendi ölçeğinde çizilir ve test ortalamasının maliyetine girmez.
 - Ortalama, sürümün **ölçülmüş** seçeneklerinin aritmetik ortalamasıdır. Sürümler aynı
   efor setiyle ölçülmediği için sayfada "En iyi seçenek" görünümü de var.
 

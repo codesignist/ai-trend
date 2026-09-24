@@ -4,15 +4,18 @@ window.ARC_TREND = {
  "benchmarks": [
   {
    "id": "v1_Semi_Private",
-   "label": "ARC-AGI-1"
+   "label": "ARC-AGI-1",
+   "costUnit": "task"
   },
   {
    "id": "v2_Semi_Private",
-   "label": "ARC-AGI-2"
+   "label": "ARC-AGI-2",
+   "costUnit": "task"
   },
   {
    "id": "v3_Semi_Private",
-   "label": "ARC-AGI-3"
+   "label": "ARC-AGI-3",
+   "costUnit": "run"
   }
  ],
  "families": [
@@ -231,13 +234,13 @@ window.ARC_TREND = {
        "mean": 0.0051,
        "min": 0.0051,
        "max": 0.0051,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 8866.2,
+       "bestCost": 8866.2,
        "variants": [
         {
          "name": "Max",
          "score": 0.0051,
-         "cost": null
+         "cost": 8866.2
         }
        ]
       }
@@ -313,13 +316,13 @@ window.ARC_TREND = {
        "mean": 0.0018,
        "min": 0.0018,
        "max": 0.0018,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 10000.0,
+       "bestCost": 10000,
        "variants": [
         {
          "name": "High",
          "score": 0.0018,
-         "cost": null
+         "cost": 10000
         }
        ]
       }
@@ -390,13 +393,13 @@ window.ARC_TREND = {
        "mean": 0.0152,
        "min": 0.0152,
        "max": 0.0152,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 10000.0,
+       "bestCost": 10000,
        "variants": [
         {
          "name": "High",
          "score": 0.0152,
-         "cost": null
+         "cost": 10000
         }
        ]
       }
@@ -452,13 +455,13 @@ window.ARC_TREND = {
        "mean": 0.3016,
        "min": 0.3016,
        "max": 0.3016,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 20657.37,
+       "bestCost": 20657.37,
        "variants": [
         {
          "name": "High",
          "score": 0.3016,
-         "cost": null
+         "cost": 20657.37
         }
        ]
       }
@@ -1348,13 +1351,13 @@ window.ARC_TREND = {
        "mean": 0.0021,
        "min": 0.0021,
        "max": 0.0021,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 5187.41,
+       "bestCost": 5187.41,
        "variants": [
         {
          "name": "High",
          "score": 0.0021,
-         "cost": null
+         "cost": 5187.41
         }
        ]
       }
@@ -1430,13 +1433,13 @@ window.ARC_TREND = {
        "mean": 0.0043,
        "min": 0.0043,
        "max": 0.0043,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 10000.0,
+       "bestCost": 10000,
        "variants": [
         {
          "name": "High",
          "score": 0.0043,
-         "cost": null
+         "cost": 10000
         }
        ]
       }
@@ -1522,33 +1525,33 @@ window.ARC_TREND = {
        "mean": 0.03664,
        "min": 0.0033,
        "max": 0.0778,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 17046.666,
+       "bestCost": 25064.11,
        "variants": [
         {
          "name": "Max",
          "score": 0.0778,
-         "cost": null
+         "cost": 25064.11
         },
         {
          "name": "XHigh",
          "score": 0.0699,
-         "cost": null
+         "cost": 19216.38
         },
         {
          "name": "High",
          "score": 0.0215,
-         "cost": null
+         "cost": 15176.07
         },
         {
          "name": "Medium",
          "score": 0.0107,
-         "cost": null
+         "cost": 12971.17
         },
         {
          "name": "Low",
          "score": 0.0033,
-         "cost": null
+         "cost": 12805.6
         }
        ]
       }
@@ -1644,38 +1647,38 @@ window.ARC_TREND = {
        "mean": 0.44682075507347463,
        "min": 0.17452190401133805,
        "max": 0.6271280210060628,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 40027.923615,
+       "bestCost": 26097.501720000007,
        "variants": [
         {
          "name": "Max",
          "score": 0.6271280210060628,
-         "cost": null
+         "cost": 26097.501720000007
         },
         {
          "name": "XHigh",
          "score": 0.5934295409146055,
-         "cost": null
+         "cost": 37317.38768
         },
         {
          "name": "High",
          "score": 0.5481905163612231,
-         "cost": null
+         "cost": 40704.722830000006
         },
         {
          "name": "Medium",
          "score": 0.3858757449733784,
-         "cost": null
+         "cost": 48090.34598999999
         },
         {
          "name": "None",
          "score": 0.35177880317424,
-         "cost": null
+         "cost": 49791.11317000001
         },
         {
          "name": "Low",
          "score": 0.17452190401133805,
-         "cost": null
+         "cost": 38166.47030000001
         }
        ]
       }
@@ -1950,33 +1953,33 @@ window.ARC_TREND = {
        "mean": 0.0012799999999999999,
        "min": 0.0002,
        "max": 0.0018,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 2632.014,
+       "bestCost": 3189.42,
        "variants": [
         {
          "name": "Max",
          "score": 0.0018,
-         "cost": null
+         "cost": 3189.42
         },
         {
          "name": "Low",
          "score": 0.0017,
-         "cost": null
+         "cost": 2307.49
         },
         {
          "name": "Medium",
          "score": 0.0017,
-         "cost": null
+         "cost": 2379.13
         },
         {
          "name": "High",
          "score": 0.001,
-         "cost": null
+         "cost": 2482.44
         },
         {
          "name": "XHigh",
          "score": 0.0002,
-         "cost": null
+         "cost": 2801.59
         }
        ]
       }
@@ -2159,38 +2162,38 @@ window.ARC_TREND = {
        "mean": 0.001171616411225504,
        "min": 0.0002791945504283949,
        "max": 0.0019415284639354709,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 246.79754275000002,
+       "bestCost": 241.2797313,
        "variants": [
         {
          "name": "Medium",
          "score": 0.0019415284639354709,
-         "cost": null
+         "cost": 241.2797313
         },
         {
          "name": "High",
          "score": 0.0018024216987988248,
-         "cost": null
+         "cost": 255.97928910000002
         },
         {
          "name": "XHigh",
          "score": 0.0016413333960356602,
-         "cost": null
+         "cost": 262.6844075
         },
         {
          "name": "Max",
          "score": 0.0010360997760319559,
-         "cost": null
+         "cost": 262.2377791
         },
         {
          "name": "Low",
          "score": 0.0003291205821227175,
-         "cost": null
+         "cost": 228.8330075
         },
         {
          "name": "None",
          "score": 0.0002791945504283949,
-         "cost": null
+         "cost": 229.77104200000002
         }
        ]
       }
@@ -2490,13 +2493,13 @@ window.ARC_TREND = {
        "mean": 0.0042,
        "min": 0.0042,
        "max": 0.0042,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 2213.53,
+       "bestCost": 2213.53,
        "variants": [
         {
          "name": "Preview",
          "score": 0.0042,
-         "cost": null
+         "cost": 2213.53
         }
        ]
       }
@@ -2969,13 +2972,13 @@ window.ARC_TREND = {
        "mean": 0.0009,
        "min": 0.0009,
        "max": 0.0009,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 3775.0,
+       "bestCost": 3775,
        "variants": [
         {
          "name": "Beta Reasoning",
          "score": 0.0009,
-         "cost": null
+         "cost": 3775
         }
        ]
       }
@@ -3041,23 +3044,23 @@ window.ARC_TREND = {
        "mean": 0.0029333333333333334,
        "min": 0.0026,
        "max": 0.0032,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 8023.216666666666,
+       "bestCost": 8458.3,
        "variants": [
         {
          "name": "Medium",
          "score": 0.0032,
-         "cost": null
+         "cost": 8458.3
         },
         {
          "name": "High",
          "score": 0.003,
-         "cost": null
+         "cost": 6892.87
         },
         {
          "name": "Low",
          "score": 0.0026,
-         "cost": null
+         "cost": 8718.48
         }
        ]
       }
@@ -3133,13 +3136,13 @@ window.ARC_TREND = {
        "mean": 0.0211,
        "min": 0.0211,
        "max": 0.0211,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 5612.0,
+       "bestCost": 5612,
        "variants": [
         {
          "name": "XHigh",
          "score": 0.0211,
-         "cost": null
+         "cost": 5612
         }
        ]
       }
@@ -3898,15 +3901,15 @@ window.ARC_TREND = {
        "mean": 0.0051,
        "max": 0.0051,
        "min": 0.0051,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 8866.2,
+       "bestCost": 8866.2,
        "variants": [
         {
          "name": "Opus 4.6",
          "score": 0.0051,
          "max": 0.0051,
-         "cost": null,
-         "bestCost": null
+         "cost": 8866.2,
+         "bestCost": 8866.2
         }
        ]
       }
@@ -3987,15 +3990,15 @@ window.ARC_TREND = {
        "mean": 0.0051,
        "max": 0.0051,
        "min": 0.0051,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 8866.2,
+       "bestCost": 8866.2,
        "variants": [
         {
          "name": "Opus 4.6",
          "score": 0.0051,
          "max": 0.0051,
-         "cost": null,
-         "bestCost": null
+         "cost": 8866.2,
+         "bestCost": 8866.2
         }
        ]
       }
@@ -4076,15 +4079,15 @@ window.ARC_TREND = {
        "mean": 0.0018,
        "max": 0.0018,
        "min": 0.0018,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 10000.0,
+       "bestCost": 10000.0,
        "variants": [
         {
          "name": "Opus 4.7",
          "score": 0.0018,
          "max": 0.0018,
-         "cost": null,
-         "bestCost": null
+         "cost": 10000.0,
+         "bestCost": 10000
         }
        ]
       }
@@ -4165,15 +4168,15 @@ window.ARC_TREND = {
        "mean": 0.0152,
        "max": 0.0152,
        "min": 0.0152,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 10000.0,
+       "bestCost": 10000.0,
        "variants": [
         {
          "name": "Opus 4.8",
          "score": 0.0152,
          "max": 0.0152,
-         "cost": null,
-         "bestCost": null
+         "cost": 10000.0,
+         "bestCost": 10000
         }
        ]
       }
@@ -4268,15 +4271,15 @@ window.ARC_TREND = {
        "mean": 0.0152,
        "max": 0.0152,
        "min": 0.0152,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 10000.0,
+       "bestCost": 10000.0,
        "variants": [
         {
          "name": "Opus 4.8",
          "score": 0.0152,
          "max": 0.0152,
-         "cost": null,
-         "bestCost": null
+         "cost": 10000.0,
+         "bestCost": 10000
         }
        ]
       }
@@ -4371,15 +4374,15 @@ window.ARC_TREND = {
        "mean": 0.3016,
        "max": 0.3016,
        "min": 0.3016,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 20657.37,
+       "bestCost": 20657.37,
        "variants": [
         {
          "name": "Opus 5",
          "score": 0.3016,
          "max": 0.3016,
-         "cost": null,
-         "bestCost": null
+         "cost": 20657.37,
+         "bestCost": 20657.37
         }
        ]
       }
@@ -4474,15 +4477,15 @@ window.ARC_TREND = {
        "mean": 0.3016,
        "max": 0.3016,
        "min": 0.3016,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 20657.37,
+       "bestCost": 20657.37,
        "variants": [
         {
          "name": "Opus 5",
          "score": 0.3016,
          "max": 0.3016,
-         "cost": null,
-         "bestCost": null
+         "cost": 20657.37,
+         "bestCost": 20657.37
         }
        ]
       }
@@ -4577,15 +4580,15 @@ window.ARC_TREND = {
        "mean": 0.3016,
        "max": 0.3016,
        "min": 0.3016,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 20657.37,
+       "bestCost": 20657.37,
        "variants": [
         {
          "name": "Opus 5",
          "score": 0.3016,
          "max": 0.3016,
-         "cost": null,
-         "bestCost": null
+         "cost": 20657.37,
+         "bestCost": 20657.37
         }
        ]
       }
@@ -4945,15 +4948,15 @@ window.ARC_TREND = {
        "mean": 0.0021,
        "max": 0.0021,
        "min": 0.0021,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 5187.41,
+       "bestCost": 5187.41,
        "variants": [
         {
          "name": "GPT-5.4",
          "score": 0.0021,
          "max": 0.0021,
-         "cost": null,
-         "bestCost": null
+         "cost": 5187.41,
+         "bestCost": 5187.41
         }
        ]
       }
@@ -5034,15 +5037,15 @@ window.ARC_TREND = {
        "mean": 0.0021,
        "max": 0.0021,
        "min": 0.0021,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 5187.41,
+       "bestCost": 5187.41,
        "variants": [
         {
          "name": "GPT-5.4",
          "score": 0.0021,
          "max": 0.0021,
-         "cost": null,
-         "bestCost": null
+         "cost": 5187.41,
+         "bestCost": 5187.41
         }
        ]
       }
@@ -5123,15 +5126,15 @@ window.ARC_TREND = {
        "mean": 0.0043,
        "max": 0.0043,
        "min": 0.0043,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 10000.0,
+       "bestCost": 10000.0,
        "variants": [
         {
          "name": "GPT-5.5",
          "score": 0.0043,
          "max": 0.0043,
-         "cost": null,
-         "bestCost": null
+         "cost": 10000.0,
+         "bestCost": 10000
         }
        ]
       }
@@ -5212,15 +5215,15 @@ window.ARC_TREND = {
        "mean": 0.0043,
        "max": 0.0043,
        "min": 0.0043,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 10000.0,
+       "bestCost": 10000.0,
        "variants": [
         {
          "name": "GPT-5.5",
          "score": 0.0043,
          "max": 0.0043,
-         "cost": null,
-         "bestCost": null
+         "cost": 10000.0,
+         "bestCost": 10000
         }
        ]
       }
@@ -5315,22 +5318,22 @@ window.ARC_TREND = {
        "mean": 0.018959999999999998,
        "max": 0.039799999999999995,
        "min": 0.00175,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 9839.34,
+       "bestCost": 14126.765,
        "variants": [
         {
          "name": "GPT-5.6 Sol",
          "score": 0.03664,
          "max": 0.0778,
-         "cost": null,
-         "bestCost": null
+         "cost": 17046.666,
+         "bestCost": 25064.11
         },
         {
          "name": "GPT-5.6 Luna",
          "score": 0.0012799999999999999,
          "max": 0.0018,
-         "cost": null,
-         "bestCost": null
+         "cost": 2632.014,
+         "bestCost": 3189.42
         }
        ]
       }
@@ -5425,22 +5428,22 @@ window.ARC_TREND = {
        "mean": 0.018959999999999998,
        "max": 0.039799999999999995,
        "min": 0.00175,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 9839.34,
+       "bestCost": 14126.765,
        "variants": [
         {
          "name": "GPT-5.6 Sol",
          "score": 0.03664,
          "max": 0.0778,
-         "cost": null,
-         "bestCost": null
+         "cost": 17046.666,
+         "bestCost": 25064.11
         },
         {
          "name": "GPT-5.6 Luna",
          "score": 0.0012799999999999999,
          "max": 0.0018,
-         "cost": null,
-         "bestCost": null
+         "cost": 2632.014,
+         "bestCost": 3189.42
         }
        ]
       }
@@ -5535,22 +5538,22 @@ window.ARC_TREND = {
        "mean": 0.22405037753673732,
        "max": 0.3144640105030314,
        "min": 0.08736095200566903,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 21329.9688075,
+       "bestCost": 14643.460860000003,
        "variants": [
         {
          "name": "GPT-6 Astra",
          "score": 0.44682075507347463,
          "max": 0.6271280210060628,
-         "cost": null,
-         "bestCost": null
+         "cost": 40027.923615,
+         "bestCost": 26097.501720000007
         },
         {
          "name": "GPT-5.6 Luna",
          "score": 0.0012799999999999999,
          "max": 0.0018,
-         "cost": null,
-         "bestCost": null
+         "cost": 2632.014,
+         "bestCost": 3189.42
         }
        ]
       }
@@ -5645,22 +5648,22 @@ window.ARC_TREND = {
        "mean": 0.22399618574235006,
        "max": 0.31453477473499913,
        "min": 0.08740054928088323,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 20137.360578875,
+       "bestCost": 13169.390725650004,
        "variants": [
         {
          "name": "GPT-6 Astra",
          "score": 0.44682075507347463,
          "max": 0.6271280210060628,
-         "cost": null,
-         "bestCost": null
+         "cost": 40027.923615,
+         "bestCost": 26097.501720000007
         },
         {
          "name": "GPT-6 Luna",
          "score": 0.001171616411225504,
          "max": 0.0019415284639354709,
-         "cost": null,
-         "bestCost": null
+         "cost": 246.79754275000002,
+         "bestCost": 241.2797313
         }
        ]
       }
@@ -5975,15 +5978,15 @@ window.ARC_TREND = {
        "mean": 0.0042,
        "max": 0.0042,
        "min": 0.0042,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 2213.53,
+       "bestCost": 2213.53,
        "variants": [
         {
          "name": "Gemini 3.1 Pro",
          "score": 0.0042,
          "max": 0.0042,
-         "cost": null,
-         "bestCost": null
+         "cost": 2213.53,
+         "bestCost": 2213.53
         }
        ]
       }
@@ -6050,15 +6053,15 @@ window.ARC_TREND = {
        "mean": 0.0042,
        "max": 0.0042,
        "min": 0.0042,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 2213.53,
+       "bestCost": 2213.53,
        "variants": [
         {
          "name": "Gemini 3.1 Pro",
          "score": 0.0042,
          "max": 0.0042,
-         "cost": null,
-         "bestCost": null
+         "cost": 2213.53,
+         "bestCost": 2213.53
         }
        ]
       }
@@ -6125,15 +6128,15 @@ window.ARC_TREND = {
        "mean": 0.0042,
        "max": 0.0042,
        "min": 0.0042,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 2213.53,
+       "bestCost": 2213.53,
        "variants": [
         {
          "name": "Gemini 3.1 Pro",
          "score": 0.0042,
          "max": 0.0042,
-         "cost": null,
-         "bestCost": null
+         "cost": 2213.53,
+         "bestCost": 2213.53
         }
        ]
       }
@@ -6200,15 +6203,15 @@ window.ARC_TREND = {
        "mean": 0.0042,
        "max": 0.0042,
        "min": 0.0042,
-       "meanCost": null,
-       "bestCost": null,
+       "meanCost": 2213.53,
+       "bestCost": 2213.53,
        "variants": [
         {
          "name": "Gemini 3.1 Pro",
          "score": 0.0042,
          "max": 0.0042,
-         "cost": null,
-         "bestCost": null
+         "cost": 2213.53,
+         "bestCost": 2213.53
         }
        ]
       }

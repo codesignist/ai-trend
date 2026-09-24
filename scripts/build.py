@@ -21,6 +21,8 @@ BENCHMARKS = [
     ("v2_Semi_Private", "ARC-AGI-2"),
     ("v3_Semi_Private", "ARC-AGI-3"),
 ]
+# ARC-AGI-3'te leaderboard görev başı değil koşunun toplam maliyetini veriyor (`cost` alanı)
+RUN_COST = {"v3_Semi_Private"}
 
 # Aile = grafikte tek çizgi. Sürümler kronolojik sırada; modelId regex ile eşleşir.
 # Aynı sağlayıcının aileleri renk paylaşır, sırası çizgi desenini belirler (0 = düz).
@@ -208,7 +210,7 @@ def main():
         rows[key][row["datasetId"]].append({
             "name": variant_label(model.get("displayName")),
             "score": row["score"],
-            "cost": row.get("costPerTask"),
+            "cost": row.get("cost") if row["datasetId"] in RUN_COST else row.get("costPerTask"),
         })
         if model.get("modelReleaseDate"):
             dates[key][model["modelReleaseDate"][:10]] += 1
@@ -235,7 +237,7 @@ def main():
                     "mean": statistics.fmean(vals),
                     "min": min(vals),
                     "max": max(vals),
-                    # görev başı $ — ARC-AGI-3'te leaderboard maliyet vermiyor, orada None
+                    # görev başı $; ARC-AGI-3'te koşunun toplam $'ı (RUN_COST)
                     "meanCost": statistics.fmean(costs) if costs else None,
                     "bestCost": variants[0]["cost"],
                     "variants": variants,
@@ -255,7 +257,7 @@ def main():
     out = {
         "source": "https://arcprize.org/leaderboard",
         "fetched": fetched,
-        "benchmarks": [{"id": i, "label": l} for i, l in BENCHMARKS],
+        "benchmarks": [{"id": i, "label": l, "costUnit": "run" if i in RUN_COST else "task"} for i, l in BENCHMARKS],
         "families": families,
     }
     text = json.dumps(out, ensure_ascii=False, indent=1)
