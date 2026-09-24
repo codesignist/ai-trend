@@ -185,6 +185,7 @@ g.fam.dim { opacity: 0.14; }
 .tip ul { list-style: none; margin: 8px 0 0; padding: 8px 0 0; border-top: 1px solid var(--grid); display: grid; gap: 2px; }
 .tip li { display: flex; justify-content: space-between; gap: 12px; color: var(--ink-2); }
 
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px 28px; align-items: start; }
 .note { margin: 0; max-width: 78ch; color: var(--ink-2); font-size: 13.5px; }
 .note strong { color: var(--ink); font-weight: 600; }
 
@@ -272,7 +273,11 @@ body { margin: 0; font-size: 14px; }
 		<div class="tip" hidden></div>
 	</article>
 
-	<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3 için leaderboard maliyet yayınlamıyor. <strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Buradaki efor noktaları her seçeneğin testler arası ortalamasıdır; yalnızca testlerin hepsinde ölçülmüş seçenekler görünür. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar; maliyet ekseninde ARC-AGI-1 ve 2 maliyetlerinin ortalaması kullanılır. <strong>Kalın yarı saydam hatlar</strong> sağlayıcının kadro ortalamasıdır: her model çıkışında, sağlayıcının her ailesinin o güne kadarki en güncel modelinin ortalaması. Yenilenmeyen küçük modeller (ör. Haiku 4.5) kadroda kaldıkça ortalamayı aşağıda tutar. GPT hattı 5.6'dan sonra en üst kademeyle (Sol → Astra) devam ediyor; GPT-6'nın "Provider Adapter" sonuçları dahil değil.</p>
+	<div class="notes">
+		<p class="note"><strong>Ortalamayı okurken:</strong> Sürümler aynı efor setiyle ölçülmemiş. Örneğin Opus 5 yalnızca high ve max ile ölçüldü, Opus 5.5 ise low'dan max'a beş seçenekle; "None / Minimal" seçeneği olan sürümlerin ortalaması da o seçenekle belirgin düşüyor. Tavan performansını karşılaştırmak için <em>En iyi seçenek</em> görünümüne geç; maliyet ekseninde o zaman en iyi seçeneğin kendi maliyeti kullanılır. ARC-AGI-3 için leaderboard maliyet yayınlamıyor.</p>
+		<p class="note"><strong>Alttaki büyük grafik</strong> her sürümün test skorlarının düz ortalamasıdır ve yalnızca seçili testlerin <em>hepsinde</em> ölçülmüş sürümleri içerir — eksik testle ortalama almak sahte sıçrama üretirdi. Buradaki efor noktaları her seçeneğin testler arası ortalamasıdır; yalnızca testlerin hepsinde ölçülmüş seçenekler görünür. Opus 5.5 gibi ARC-AGI-3'te henüz ölçülmemiş sürümler <em>1 + 2</em> görünümünde çıkar; maliyet ekseninde ARC-AGI-1 ve 2 maliyetlerinin ortalaması kullanılır.</p>
+		<p class="note"><strong>Kalın yarı saydam hatlar</strong> sağlayıcının kadro ortalamasıdır: her model çıkışında, sağlayıcının her ailesinin o güne kadarki en güncel modelinin ortalaması. Yenilenmeyen küçük modeller (ör. Haiku 4.5) kadroda kaldıkça ortalamayı aşağıda tutar. GPT hattı 5.6'dan sonra en üst kademeyle (Sol → Astra) devam ediyor; GPT-6'nın "Provider Adapter" sonuçları dahil değil.</p>
+	</div>
 
 	<details>
 		<summary>Tablo</summary>
